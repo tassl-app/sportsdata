@@ -2,9 +2,12 @@ package ncaafb
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"time"
 )
 
 type API struct {
@@ -33,6 +36,11 @@ const (
 	SchedulePostSeason = ScheduleType("pst")
 )
 
+var ScheduleAll = []ScheduleType{
+	ScheduleRegular,
+	SchedulePostSeason,
+}
+
 type DivisionType string
 
 const (
@@ -60,21 +68,45 @@ func (a *API) baseEndpoint() string {
 	} else {
 		accessLevel = AccessLevelTrial
 	}
-	return fmt.Sprintf("https://api.sportsdatallc.org/ncaafb-%s3", string(accessLevel))
+	return fmt.Sprintf("https://api.sportsdatallc.org/ncaafb-%s1", string(accessLevel))
 }
 
-func (a *API) divisionEndpoint(divisionType DivisionType) string {
-	return fmt.Sprintf("%s/teams/%s/hierarchy.xml?api_key=%s", a.baseEndpoint(), string(divisionType), a.apiKey)
+func (a *API) divisionEndpoint(divisionType DivisionType) (*url.URL, error) {
+	endpoint := fmt.Sprintf("%s/teams/%s/hierarchy.xml", a.baseEndpoint(), string(divisionType))
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	q := u.Query()
+	q.Set("api_key", a.apiKey)
+	u.RawQuery = q.Encode()
+	return u, nil
 }
 
-func (a *API) scheduleEndpoint(year string, scheduleType ScheduleType) string {
-	return fmt.Sprintf("%s/%s/%s/schedule.xml?api_key=%s", a.baseEndpoint(), year, string(scheduleType), a.apiKey)
+func (a *API) scheduleEndpoint(year string, scheduleType ScheduleType) (*url.URL, error) {
+	endpoint := fmt.Sprintf("%s/%s/%s/schedule.xml", a.baseEndpoint(), year, string(scheduleType))
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	q := u.Query()
+	q.Set("api_key", a.apiKey)
+	u.RawQuery = q.Encode()
+	return u, nil
 }
 
 func (a *API) Division(divisionType DivisionType) (*Division, error) {
-	resp, err := http.Get(a.divisionEndpoint(divisionType))
+	u, err := a.divisionEndpoint(divisionType)
 	if err != nil {
 		return nil, err
+	}
+	endpoint := u.String()
+	resp, err := http.Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("API Status Returned Code %d.\nRequest: %+v\nResponse: %+v\n", resp.StatusCode, resp.Request, resp))
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -87,13 +119,19 @@ func (a *API) Division(divisionType DivisionType) (*Division, error) {
 }
 
 func (a *API) Schedule(year string, scheduleType ScheduleType) (*Schedule, error) {
-	resp, err := http.Get(a.scheduleEndpoint(year, scheduleType))
+	u, err := a.scheduleEndpoint(year, scheduleType)
 	if err != nil {
 		return nil, err
 	}
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("API Status Returned Code %d.\nRequest: %+v\nResponse: %+v\n", resp.StatusCode, resp.Request, resp))
+	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	//fmt.Print(string(body))
 	if err != nil {
 		return nil, err
 	}
@@ -107,4 +145,21 @@ func (a *API) Schedule(year string, scheduleType ScheduleType) (*Schedule, error
 	schedule.ScheduleType = scheduleType
 	schedule.Season = season
 	return schedule, nil
+}
+
+func (a *API) AllSchedules(years []string) ([]*Schedule, error) {
+	schedules := make([]*Schedule, 0)
+	for i, year := range years {
+		for j, scheduleType := range ScheduleAll {
+			if i > 0 || j > 0 {
+				time.Sleep(1 * time.Second)
+			}
+			schedule, err := a.Schedule(year, scheduleType)
+			if err != nil {
+				return nil, err
+			}
+			schedules = append(schedules, schedule)
+		}
+	}
+	return schedules, nil
 }

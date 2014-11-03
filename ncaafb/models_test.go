@@ -109,3 +109,50 @@ func TestDivisionConferences(t *testing.T) {
 		return
 	}
 }
+
+func TestSeasons(t *testing.T) {
+	v := new(Season)
+	err := xml.Unmarshal([]byte(seasonData), v)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	expectedSeason := "2014"
+	if v.Season != expectedSeason {
+		t.Errorf("Expected season %s, found %s\n", expectedSeason, v.Season)
+		return
+	}
+	weeks := v.Weeks
+	if len(weeks) != 2 {
+		t.Errorf("Expected %d weeks, found %d\n", 2, len(weeks))
+		return
+	}
+	games := weeks[0].Games
+	if len(games) != 2 {
+		t.Errorf("Expected %d games, found %d\n", 2, len(games))
+		return
+	}
+	game := games[0]
+	venue := game.Venue
+	if venue == nil {
+		t.Errorf("Venue not found\n")
+		return
+	}
+	expectedVenueId := "61b61700-a5e3-4f72-9cce-e0e6c3e652fa"
+	if expectedVenueId != venue.Id {
+		t.Errorf("Expected venue id %s, found %s\n", expectedVenueId, venue.Id)
+		return
+	}
+	links := game.Links.Links
+	if len(links) != 5 {
+		t.Errorf("Expected %d links, found %d\n", 5, len(links))
+		return
+	}
+	schedule := new(Schedule)
+	schedule.Season = v
+	venues := schedule.Venues()
+	if len(venues) != 3 {
+		t.Errorf("Expected %d venues, found %d\n", 3, len(venues))
+		return
+	}
+}

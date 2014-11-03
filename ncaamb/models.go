@@ -1,29 +1,22 @@
 package ncaamb
 
-type Venue struct {
-	Id       string `xml:"id,attr"`
-	Name     string `xml:"name,attr"`
-	Capacity string `xml:"capacity,attr"`
-	Address  string `xml:"address,attr"`
-	City     string `xml:"city,attr"`
-	State    string `xml:"state,attr"`
-	Zip      string `xml:"zip,attr"`
-	Country  string `xml:"country,attr"`
-}
+import (
+	"github.com/tassl/sportsdata"
+)
 
 type Team struct {
-	Id     string `xml:"id,attr"`
-	Name   string `xml:"name,attr"`
-	Market string `xml:"market,attr"`
-	Alias  string `xml:"alias,attr"`
-	Venue  *Venue `xml:"venue,attr"`
+	Id     string            `xml:"id,attr"`
+	Name   string            `xml:"name,attr"`
+	Market string            `xml:"market,attr"`
+	Alias  string            `xml:"alias,attr"`
+	Venue  *sportsdata.Venue `xml:"venue"`
 }
 
 type Conference struct {
 	Id    string `xml:"id,attr"`
 	Name  string `xml:"name,attr"`
 	Alias string `xml:"alias,attr"`
-	Team  []Team `xml:"team"`
+	Teams []Team `xml:"team"`
 }
 
 type Division struct {
@@ -74,4 +67,24 @@ type League struct {
 	Alias          string         `xml:"alias,attr"`
 	Division       []Division     `xml:"division"`
 	SeasonSchedule SeasonSchedule `xml:"season-schedule"`
+}
+
+type Schedule struct {
+	Season       string
+	ScheduleType ScheduleType
+	League       *League
+}
+
+func (s *Schedule) Venues() []*sportsdata.Venue {
+	venues := make([]*sportsdata.Venue, 0)
+	for _, division := range s.League.Division {
+		for _, conference := range division.Conference {
+			for _, team := range conference.Teams {
+				if team.Venue != nil {
+					venues = append(venues, team.Venue)
+				}
+			}
+		}
+	}
+	return venues
 }

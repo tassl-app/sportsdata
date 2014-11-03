@@ -13,13 +13,13 @@ const leagueDivisionData = `
 				<venue id="c06cdbce-91ba-4306-b31c-97df5cbf2515" name="Jon M. Huntsman Center" capacity="15000" address="1825 East South Campus Dr" city="Salt Lake City" state="UT" zip="84112" country="USA"/>
 			</team>
 		</conference>
+		<conference id="3e37a5b4-29da-488f-8176-3b33121c036d" name="Midwest Collegiate Conference" alias="MCC">
+			<team id="fac4a71e-40a9-47a6-b8d9-61a50d3c6edc" name="Hawks" market="Viterbo" alias="VIT"></team>
+		</conference>
 	</division>
 	<division id="556da150-35b7-433c-ae6d-dd702c543cf3" name="NAIA" alias="NAIA">
 		<conference id="02cdb06e-b644-48e8-a5c9-dd235b888f7a" name="Kansas Collegiate Athletic Conference" alias="KCAC">
 			<team id="ea22a80e-0194-4bda-99d1-a32f3545fffc" name="Bluejays" market="Tabor College" alias="TAB"></team>
-		</conference>
-		<conference id="3e37a5b4-29da-488f-8176-3b33121c036d" name="Midwest Collegiate Conference" alias="MCC">
-			<team id="fac4a71e-40a9-47a6-b8d9-61a50d3c6edc" name="Hawks" market="Viterbo" alias="VIT"></team>
 		</conference>
 	</division>
 </league>
@@ -60,23 +60,42 @@ func TestLeagueDivision(t *testing.T) {
 		t.Errorf("XML rendered as %+v\n", v)
 		return
 	}
-	conferences := divisions[1].Conference
+	conferences := divisions[0].Conference
 	if len(conferences) != 2 {
 		t.Errorf("Expected %d conferences, found %d\n", 2, len(conferences))
 		t.Errorf("XML rendered as %+v\n", v)
 		return
 	}
-	teams := conferences[0].Team
+	teams := conferences[0].Teams
 	if len(teams) != 1 {
 		t.Errorf("Expected %d teams, found %d\n", 1, len(teams))
 		t.Errorf("XML rendered as %+v\n", v)
 		return
 	}
 	team := teams[0]
-	expectedTeamId := "ea22a80e-0194-4bda-99d1-a32f3545fffc"
+	expectedTeamId := "cd34248e-6f7d-4e0a-b694-567699bd7917"
 	if team.Id != expectedTeamId {
 		t.Errorf("Expected team id to be %s, found %s\n", expectedTeamId, team.Id)
 		t.Errorf("XML rendered as %+v\n", v)
+		return
+	}
+	venue := team.Venue
+	if venue == nil {
+		t.Errorf("Expected venue, found nil\n")
+		t.Errorf("XML rendered as %+v\n", v)
+		return
+	}
+	expectedVenueId := "c06cdbce-91ba-4306-b31c-97df5cbf2515"
+	if venue.Id != expectedVenueId {
+		t.Errorf("Expected venue id to be %s, found %s\n", expectedVenueId, venue.Id)
+		t.Errorf("XML rendered as %+v\n", v)
+		return
+	}
+	schedule := new(Schedule)
+	schedule.League = v
+	venues := schedule.Venues()
+	if len(venues) != 1 {
+		t.Errorf("Expected %d venues, found %d\n", 1, len(venues))
 		return
 	}
 }

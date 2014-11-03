@@ -1,5 +1,9 @@
 package ncaafb
 
+import (
+	"github.com/tassl/sportsdata"
+)
+
 type Team struct {
 	Id       string `xml:"id,attr"`
 	Name     string `xml:"name,attr"`
@@ -70,17 +74,17 @@ type Venue struct {
 }
 
 type Game struct {
-	Id           string    `xml:"id,attr"`
-	Scheduled    string    `xml:"scheduled,attr"`
-	Coverage     string    `xml:"coverage,attr"`
-	HomeRotation string    `xml:"home_rotation,attr"`
-	AwayRotation string    `xml:"away_rotation,attr"`
-	HomeTeamId   string    `xml:"home,attr"`
-	AwayTeamId   string    `xml:"away,attr"`
-	Status       string    `xml:"status,attr"`
-	Venue        Venue     `xml:"venue"`
-	Broadcast    Broadcast `xml:"broadcast"`
-	Links        Links     `xml:"links"`
+	Id           string            `xml:"id,attr"`
+	Scheduled    string            `xml:"scheduled,attr"`
+	Coverage     string            `xml:"coverage,attr"`
+	HomeRotation string            `xml:"home_rotation,attr"`
+	AwayRotation string            `xml:"away_rotation,attr"`
+	HomeTeamId   string            `xml:"home,attr"`
+	AwayTeamId   string            `xml:"away,attr"`
+	Status       string            `xml:"status,attr"`
+	Venue        *sportsdata.Venue `xml:"venue"`
+	Broadcast    *Broadcast        `xml:"broadcast"`
+	Links        Links             `xml:"links"`
 }
 
 type Week struct {
@@ -99,4 +103,16 @@ type Schedule struct {
 	Year         string
 	ScheduleType ScheduleType
 	Season       *Season
+}
+
+func (s *Schedule) Venues() []*sportsdata.Venue {
+	venues := make([]*sportsdata.Venue, 0)
+	for _, week := range s.Season.Weeks {
+		for _, game := range week.Games {
+			if game.Venue != nil {
+				venues = append(venues, game.Venue)
+			}
+		}
+	}
+	return venues
 }
