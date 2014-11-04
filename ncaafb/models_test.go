@@ -108,6 +108,11 @@ func TestDivisionConferences(t *testing.T) {
 		t.Errorf("Expected team id %s, found %s\n", expectedTeamId, team.Id)
 		return
 	}
+	allTeams := v.Teams()
+	if len(allTeams) != 6 {
+		t.Errorf("Expected %d teams, found %d\n", 6, len(allTeams))
+		return
+	}
 }
 
 func TestSeasons(t *testing.T) {

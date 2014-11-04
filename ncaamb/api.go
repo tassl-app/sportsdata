@@ -77,7 +77,7 @@ func (a *API) scheduleEndpoint(season string, scheduleType ScheduleType) (*url.U
 	return u, nil
 }
 
-func (a *API) Division() (*League, error) {
+func (a *API) League() (*League, error) {
 	endpoint, err := a.divisionEndpoint()
 	if err != nil {
 		return nil, err

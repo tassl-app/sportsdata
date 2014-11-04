@@ -54,13 +54,13 @@ func TestLeagueDivision(t *testing.T) {
 		t.Errorf("Expected league id %s, found %s\n", expectedLeagueId, v.Id)
 		return
 	}
-	divisions := v.Division
+	divisions := v.Divisions
 	if len(divisions) != 2 {
 		t.Errorf("Expected %d divisions, found %d\n", 2, len(divisions))
 		t.Errorf("XML rendered as %+v\n", v)
 		return
 	}
-	conferences := divisions[0].Conference
+	conferences := divisions[0].Conferences
 	if len(conferences) != 2 {
 		t.Errorf("Expected %d conferences, found %d\n", 2, len(conferences))
 		t.Errorf("XML rendered as %+v\n", v)
@@ -96,6 +96,11 @@ func TestLeagueDivision(t *testing.T) {
 	venues := schedule.Venues()
 	if len(venues) != 1 {
 		t.Errorf("Expected %d venues, found %d\n", 1, len(venues))
+		return
+	}
+	allTeams := v.Teams()
+	if len(allTeams) != 3 {
+		t.Errorf("Expected %d teams, found %d\n", 3, len(allTeams))
 		return
 	}
 }

@@ -5,25 +5,26 @@ import (
 )
 
 type Team struct {
-	Id     string            `xml:"id,attr"`
-	Name   string            `xml:"name,attr"`
-	Market string            `xml:"market,attr"`
-	Alias  string            `xml:"alias,attr"`
-	Venue  *sportsdata.Venue `xml:"venue"`
+	Id           string            `xml:"id,attr"`
+	ConferenceId string            `xml:"-"`
+	Name         string            `xml:"name,attr"`
+	Market       string            `xml:"market,attr"`
+	Alias        string            `xml:"alias,attr"`
+	Venue        *sportsdata.Venue `xml:"venue"`
 }
 
 type Conference struct {
-	Id    string `xml:"id,attr"`
-	Name  string `xml:"name,attr"`
-	Alias string `xml:"alias,attr"`
-	Teams []Team `xml:"team"`
+	Id    string  `xml:"id,attr"`
+	Name  string  `xml:"name,attr"`
+	Alias string  `xml:"alias,attr"`
+	Teams []*Team `xml:"team"`
 }
 
 type Division struct {
-	Id         string       `xml:"id,attr"`
-	Name       string       `xml:"name,attr"`
-	Alias      string       `xml:"alias,attr"`
-	Conference []Conference `xml:"conference"`
+	Id          string        `xml:"id,attr"`
+	Name        string        `xml:"name,attr"`
+	Alias       string        `xml:"alias,attr"`
+	Conferences []*Conference `xml:"conference"`
 }
 
 type HomeTeam struct {
@@ -50,7 +51,7 @@ type Game struct {
 }
 
 type Games struct {
-	Game []Game `xml:"game"`
+	Game []*Game `xml:"game"`
 }
 
 type SeasonSchedule struct {
@@ -65,8 +66,21 @@ type League struct {
 	Id             string         `xml:"id,attr"`
 	Name           string         `xml:"name,attr"`
 	Alias          string         `xml:"alias,attr"`
-	Division       []Division     `xml:"division"`
+	Divisions      []*Division    `xml:"division"`
 	SeasonSchedule SeasonSchedule `xml:"season-schedule"`
+}
+
+func (l *League) Teams() []*Team {
+	teams := make([]*Team, 0)
+	for _, division := range l.Divisions {
+		for _, conference := range division.Conferences {
+			for _, team := range conference.Teams {
+				team.ConferenceId = conference.Id
+				teams = append(teams, team)
+			}
+		}
+	}
+	return teams
 }
 
 type Schedule struct {
@@ -77,8 +91,8 @@ type Schedule struct {
 
 func (s *Schedule) Venues() []*sportsdata.Venue {
 	venues := make([]*sportsdata.Venue, 0)
-	for _, division := range s.League.Division {
-		for _, conference := range division.Conference {
+	for _, division := range s.League.Divisions {
+		for _, conference := range division.Conferences {
 			for _, team := range conference.Teams {
 				if team.Venue != nil {
 					venues = append(venues, team.Venue)

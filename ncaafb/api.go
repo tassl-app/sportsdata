@@ -118,6 +118,21 @@ func (a *API) Division(divisionType DivisionType) (*Division, error) {
 	return division, err
 }
 
+func (a *API) AllDivisions() ([]*Division, error) {
+	divisions := make([]*Division, 0)
+	for i, divisionType := range DivisionAll {
+		if i > 0 {
+			time.Sleep(1 * time.Second)
+		}
+		division, err := a.Division(divisionType)
+		if err != nil {
+			return nil, err
+		}
+		divisions = append(divisions, division)
+	}
+	return divisions, nil
+}
+
 func (a *API) Schedule(year string, scheduleType ScheduleType) (*Schedule, error) {
 	u, err := a.scheduleEndpoint(year, scheduleType)
 	if err != nil {

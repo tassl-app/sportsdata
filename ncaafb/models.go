@@ -5,30 +5,49 @@ import (
 )
 
 type Team struct {
-	Id       string `xml:"id,attr"`
-	Name     string `xml:"name,attr"`
-	Market   string `xml:"market,attr"`
-	Coverage string `xml:"coverage,attr"`
+	Id            string `xml:"id,attr"`
+	SubdivisionId string `xml:"-"`
+	ConferenceId  string `xml:"-"`
+	Name          string `xml:"name,attr"`
+	Market        string `xml:"market,attr"`
+	Coverage      string `xml:"coverage,attr"`
 }
 
 type Subdivision struct {
-	Id    string `xml:"id,attr"`
-	Name  string `xml:"name,attr"`
-	Teams []Team `xml:"team"`
+	Id    string  `xml:"id,attr"`
+	Name  string  `xml:"name,attr"`
+	Teams []*Team `xml:"team"`
 }
 
 type Conference struct {
-	Id           string        `xml:"id,attr"`
-	Name         string        `xml:"name,attr"`
-	Subdivisions []Subdivision `xml:"subdivision"`
-	Teams        []Team        `xml:"team"`
+	Id           string         `xml:"id,attr"`
+	Name         string         `xml:"name,attr"`
+	Subdivisions []*Subdivision `xml:"subdivision"`
+	Teams        []*Team        `xml:"team"`
 }
 
 type Division struct {
-	XMLNS       string       `xml:"xmlns,attr"`
-	Id          string       `xml:"id,attr"`
-	Name        string       `xml:"name,attr"`
-	Conferences []Conference `xml:"conference"`
+	XMLNS       string        `xml:"xmlns,attr"`
+	Id          string        `xml:"id,attr"`
+	Name        string        `xml:"name,attr"`
+	Conferences []*Conference `xml:"conference"`
+}
+
+func (d *Division) Teams() []*Team {
+	teams := make([]*Team, 0)
+	for _, conference := range d.Conferences {
+		for _, subdivision := range conference.Subdivisions {
+			for _, team := range subdivision.Teams {
+				team.SubdivisionId = subdivision.Id
+				teams = append(teams, team)
+			}
+		}
+		for _, team := range conference.Teams {
+			team.ConferenceId = conference.Id
+			teams = append(teams, team)
+		}
+	}
+	return teams
 }
 
 type Link struct {
@@ -88,15 +107,15 @@ type Game struct {
 }
 
 type Week struct {
-	Week  string `xml:"week,attr"`
-	Games []Game `xml:"game"`
+	Week  string  `xml:"week,attr"`
+	Games []*Game `xml:"game"`
 }
 
 type Season struct {
-	XMLNS      string `xml:"xmlns,attr"`
-	Season     string `xml:"season,attr"`
-	SeasonType string `xml:"type,attr"`
-	Weeks      []Week `xml:"week"`
+	XMLNS      string  `xml:"xmlns,attr"`
+	Season     string  `xml:"season,attr"`
+	SeasonType string  `xml:"type,attr"`
+	Weeks      []*Week `xml:"week"`
 }
 
 type Schedule struct {
