@@ -56,14 +56,14 @@ func (t *AwayTeam) Team() *Team {
 }
 
 type Game struct {
-	Id         string   `xml:"id,attr"`
-	Status     string   `xml:"status,attr"`
-	Coverage   string   `xml:"coverage,attr"`
-	HomeTeamId string   `xml:"home_team,attr"`
-	AwayTeamId string   `xml:"away_team,attr"`
-	Scheduled  string   `xml:"scheduled,attr"`
-	HomeTeam   HomeTeam `xml:"home"`
-	AwayTeam   AwayTeam `xml:"away"`
+	Id         string    `xml:"id,attr"`
+	Status     string    `xml:"status,attr"`
+	Coverage   string    `xml:"coverage,attr"`
+	HomeTeamId string    `xml:"home_team,attr"`
+	AwayTeamId string    `xml:"away_team,attr"`
+	Scheduled  string    `xml:"scheduled,attr"`
+	HomeTeam   *HomeTeam `xml:"home"`
+	AwayTeam   *AwayTeam `xml:"away"`
 }
 
 type Games struct {
@@ -78,12 +78,12 @@ type SeasonSchedule struct {
 }
 
 type League struct {
-	XMLNS          string         `xml:"xmlns,attr"`
-	Id             string         `xml:"id,attr"`
-	Name           string         `xml:"name,attr"`
-	Alias          string         `xml:"alias,attr"`
-	Divisions      []*Division    `xml:"division"`
-	SeasonSchedule SeasonSchedule `xml:"season-schedule"`
+	XMLNS          string          `xml:"xmlns,attr"`
+	Id             string          `xml:"id,attr"`
+	Name           string          `xml:"name,attr"`
+	Alias          string          `xml:"alias,attr"`
+	Divisions      []*Division     `xml:"division"`
+	SeasonSchedule *SeasonSchedule `xml:"season-schedule"`
 }
 
 func (l *League) Teams() []*Team {
