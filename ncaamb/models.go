@@ -42,7 +42,7 @@ type AwayTeam struct {
 type Game struct {
 	Id         string   `xml:"id,attr"`
 	Status     string   `xml:"status,attr"`
-	Converage  string   `xml:"coverage,attr"`
+	Coverage   string   `xml:"coverage,attr"`
 	HomeTeamId string   `xml:"home_team,attr"`
 	AwayTeamId string   `xml:"away_team,attr"`
 	Scheduled  string   `xml:"scheduled,attr"`
