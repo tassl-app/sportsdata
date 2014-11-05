@@ -33,10 +33,26 @@ type HomeTeam struct {
 	Alias string `xml:"alias,attr"`
 }
 
+func (t *HomeTeam) Team() *Team {
+	return &Team{
+		Id:    t.Id,
+		Name:  t.Name,
+		Alias: t.Alias,
+	}
+}
+
 type AwayTeam struct {
 	Id    string `xml:"id,attr"`
 	Name  string `xml:"name,attr"`
 	Alias string `xml:"alias,attr"`
+}
+
+func (t *AwayTeam) Team() *Team {
+	return &Team{
+		Id:    t.Id,
+		Name:  t.Name,
+		Alias: t.Alias,
+	}
 }
 
 type Game struct {
