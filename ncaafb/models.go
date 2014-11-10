@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+var ErrScoreNotFound = errors.New("Score not found")
+
 type Team struct {
 	Id            string `xml:"id,attr"`
 	SubdivisionId string `xml:"-"`
@@ -173,7 +175,7 @@ func (b *Boxscore) HomeTeamScore() (int64, error) {
 			return t.Scoring.Points, nil
 		}
 	}
-	return 0, errors.New("Could not find home team score")
+	return 0, ErrScoreNotFound
 }
 
 func (b *Boxscore) AwayTeamScore() (int64, error) {
@@ -182,7 +184,7 @@ func (b *Boxscore) AwayTeamScore() (int64, error) {
 			return t.Scoring.Points, nil
 		}
 	}
-	return 0, errors.New("Could not find away team score")
+	return 0, ErrScoreNotFound
 }
 
 type BoxscoreTeam struct {

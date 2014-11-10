@@ -224,8 +224,10 @@ func (a *API) AllBoxscores(schedule *Schedule) ([]*Boxscore, error) {
 	boxscores := make([]*Boxscore, 0)
 	if schedule.Season != nil {
 		for _, week := range schedule.Season.Weeks {
-			for _, game := range week.Games {
-				time.Sleep(1 * time.Second)
+			for i, game := range week.Games {
+				if i > 0 {
+					time.Sleep(1 * time.Second)
+				}
 				fmt.Printf("Getting boxscore for %s, %s, %s, %s, %s", schedule.Year, schedule.ScheduleType, week.Week, game.AwayTeamId, game.HomeTeamId)
 				boxscore, err := a.Boxscore(schedule.Year, schedule.ScheduleType, week.Week, game.AwayTeamId, game.HomeTeamId)
 				if err != nil {
