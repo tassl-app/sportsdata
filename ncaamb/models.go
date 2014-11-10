@@ -2,6 +2,7 @@ package ncaamb
 
 import (
 	"github.com/tassl/sportsdata"
+	"time"
 )
 
 type Team struct {
@@ -66,8 +67,12 @@ type Game struct {
 	AwayTeam   *AwayTeam `xml:"away"`
 }
 
+func (g *Game) FormattedScheduled() (time.Time, error) {
+	return time.Parse(sportsdata.SportsDataTimeFormat, g.Scheduled)
+}
+
 type Games struct {
-	Game []*Game `xml:"game"`
+	Games []*Game `xml:"game"`
 }
 
 type SeasonSchedule struct {

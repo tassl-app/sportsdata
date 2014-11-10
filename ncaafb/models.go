@@ -1,7 +1,9 @@
 package ncaafb
 
 import (
+	"errors"
 	"github.com/tassl/sportsdata"
+	"time"
 )
 
 type Team struct {
@@ -106,6 +108,10 @@ type Game struct {
 	Links        Links             `xml:"links"`
 }
 
+func (g *Game) FormattedScheduled() (time.Time, error) {
+	return time.Parse(sportsdata.SportsDataTimeFormat, g.Scheduled)
+}
+
 type Week struct {
 	Week  string  `xml:"week,attr"`
 	Games []*Game `xml:"game"`
@@ -134,4 +140,103 @@ func (s *Schedule) Venues() []*sportsdata.Venue {
 		}
 	}
 	return venues
+}
+
+type Boxscore struct {
+	Year          string                 `xml:"-"`
+	ScheduleType  ScheduleType           `xml:"-"`
+	Week          string                 `xml:"-"`
+	XMLNS         string                 `xml:"xmlns,attr"`
+	Id            string                 `xml:"id,attr"`
+	Scheduled     string                 `xml:"scheduled,attr"`
+	HomeTeamId    string                 `xml:"home,attr"`
+	AwayTeamId    string                 `xml:"away,attr"`
+	Status        string                 `xml:"status,attr"`
+	Quarter       string                 `xml:"quarter,attr"`
+	Clock         string                 `xml:"clock,attr"`
+	Completed     string                 `xml:"completed,attr"`
+	Teams         []*BoxscoreTeam        `xml:"team"`
+	ScoringDrives *BoxscoreScoringDrives `xml:"scoring_drives"`
+}
+
+func (b *Boxscore) FormattedScheduled() (time.Time, error) {
+	return time.Parse(sportsdata.SportsDataTimeFormat, b.Scheduled)
+}
+
+func (b *Boxscore) FormattedCompleted() (time.Time, error) {
+	return time.Parse(sportsdata.SportsDataTimeFormat, b.Completed)
+}
+
+func (b *Boxscore) HomeTeamScore() (int64, error) {
+	for _, t := range b.Teams {
+		if t.Id == b.HomeTeamId && t.Scoring != nil {
+			return t.Scoring.Points, nil
+		}
+	}
+	return 0, errors.New("Could not find home team score")
+}
+
+func (b *Boxscore) AwayTeamScore() (int64, error) {
+	for _, t := range b.Teams {
+		if t.Id == b.AwayTeamId && t.Scoring != nil {
+			return t.Scoring.Points, nil
+		}
+	}
+	return 0, errors.New("Could not find away team score")
+}
+
+type BoxscoreTeam struct {
+	Id                  string               `xml:"id,attr"`
+	Name                string               `xml:"name,attr"`
+	Market              string               `xml:"market,attr"`
+	RemainingChallenges int64                `xml:"remaining_challenges,attr"`
+	RemainingTimeouts   int64                `xml:"remaining_timeouts,attr"`
+	Scoring             *BoxscoreTeamScoring `xml:"scoring"`
+}
+
+type BoxscoreTeamScoring struct {
+	Points  int64                         `xml:"points,attr"`
+	Quarter []*BoxscoreTeamScoringQuarter `xml:"quarter"`
+}
+
+type BoxscoreTeamScoringQuarter struct {
+	Number int64 `xml:"number,attr"`
+	Points int64 `xml:"points,attr"`
+}
+
+type BoxscoreScoringDrives struct {
+	Drives []*BoxscoreScoringDrive `xml:"drive"`
+}
+
+type BoxscoreScoringDrive struct {
+	Sequence string                       `xml:"sequence,attr"`
+	Clock    string                       `xml:"clock,attr"`
+	Quarter  string                       `xml:"quarter,attr"`
+	Team     string                       `xml:"team,attr"`
+	Scores   []*BoxscoreScoringDriveScore `xml:"score"`
+}
+
+type BoxscoreSummary struct {
+	Data string `xml:",chardata"`
+}
+
+type BoxscoreScoringDriveScore struct {
+	Id        string                         `xml:"id,attr"`
+	Type      string                         `xml:"type,attr"`
+	Clock     string                         `xml:"clock,attr"`
+	Quarter   string                         `xml:"quarter,attr"`
+	Points    int64                          `xml:"points,attr"`
+	Team      string                         `xml:"team,attr"`
+	GameScore *BoxscoreScoringDriveGameScore `xml:"game-score"`
+	Summary   *BoxscoreSummary               `xml:"summary"`
+	Links     *Links                         `xml:"links"`
+}
+
+type BoxscoreScoringDriveGameScore struct {
+	Teams []*BoxscoreScoringDriveGameScoreTeam `xml:"team"`
+}
+
+type BoxscoreScoringDriveGameScoreTeam struct {
+	Id     string `xml:"id,attr"`
+	Points int64  `xml:"points,attr"`
 }

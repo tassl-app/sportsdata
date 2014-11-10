@@ -3,6 +3,7 @@ package ncaafb
 import (
 	"encoding/xml"
 	"testing"
+	"time"
 )
 
 const divisionConferenceData = `
@@ -75,6 +76,161 @@ const seasonData = `
 </season>
 `
 
+const boxscoreData = `
+<game xmlns="http://feed.elasticstats.com/schema/ncaafb/boxscore-v1.0.xsd" id="e5896e5f-3779-4726-bee9-512d9d0746b2" scheduled="2014-09-18T23:30:00+00:00" home="KST" away="AUB" status="closed" quarter="4" clock=":00" completed="2014-09-19T02:50:26+00:00">
+  <team id="KST" name="Wildcats" market="Kansas State" remaining_challenges="2" remaining_timeouts="2">
+    <scoring points="14">
+      <quarter number="1" points="0"/>
+      <quarter number="2" points="7"/>
+      <quarter number="3" points="0"/>
+      <quarter number="4" points="7"/>
+    </scoring>
+  </team>
+  <team id="AUB" name="Tigers" market="Auburn" remaining_challenges="2" remaining_timeouts="2">
+    <scoring points="20">
+      <quarter number="1" points="3"/>
+      <quarter number="2" points="7"/>
+      <quarter number="3" points="0"/>
+      <quarter number="4" points="10"/>
+    </scoring>
+  </team>
+  <scoring_drives>
+    <drive sequence="1" clock="13:07" quarter="1" team="AUB">
+      <score id="a14cf3cc-2985-4f2a-a1f2-05fdf06635e5" type="fieldgoal" clock="11:19" quarter="1" points="3" team="AUB">
+        <game-score>
+          <team id="KST" points="0"/>
+          <team id="AUB" points="3"/>
+        </game-score>
+        <summary>
+          <![CDATA[38-D.Carlson 34 yards Field Goal is Good.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/a14cf3cc-2985-4f2a-a1f2-05fdf06635e5.xml" type="application/xml"/>
+        </links>
+      </score>
+    </drive>
+    <drive sequence="2" clock="07:48" quarter="2" team="KST">
+      <score id="afc02847-c2d7-457f-8e41-960da56681da" type="touchdown" clock="05:00" quarter="2" points="6" team="KST">
+        <game-score>
+          <team id="KST" points="6"/>
+          <team id="AUB" points="3"/>
+        </game-score>
+        <summary>
+          <![CDATA[20-D.Robinson runs 3 yards for a touchdown.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/afc02847-c2d7-457f-8e41-960da56681da.xml" type="application/xml"/>
+        </links>
+      </score>
+      <score id="5074c28c-8d77-4126-a877-92ea8b67ed4a" type="extrapoint" clock="04:56" quarter="2" points="1" team="KST">
+        <game-score>
+          <team id="KST" points="7"/>
+          <team id="AUB" points="3"/>
+        </game-score>
+        <summary>
+          <![CDATA[3-J.Cantele extra point is good.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/5074c28c-8d77-4126-a877-92ea8b67ed4a.xml" type="application/xml"/>
+        </links>
+      </score>
+    </drive>
+    <drive sequence="3" clock="04:56" quarter="2" team="AUB">
+      <score id="37baf44b-3593-45b0-8e75-3d0bd93e471c" type="touchdown" clock="01:45" quarter="2" points="6" team="AUB">
+        <game-score>
+          <team id="KST" points="7"/>
+          <team id="AUB" points="9"/>
+        </game-score>
+        <summary>
+          <![CDATA[14-N.Marshall complete to 5-R.Louis. 5-R.Louis runs 40 yards for a touchdown.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/37baf44b-3593-45b0-8e75-3d0bd93e471c.xml" type="application/xml"/>
+        </links>
+      </score>
+      <score id="bc359877-6cb5-4117-9c69-c99a644c3ded" type="extrapoint" clock="01:34" quarter="2" points="1" team="AUB">
+        <game-score>
+          <team id="KST" points="7"/>
+          <team id="AUB" points="10"/>
+        </game-score>
+        <summary>
+          <![CDATA[38-D.Carlson extra point is good.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/bc359877-6cb5-4117-9c69-c99a644c3ded.xml" type="application/xml"/>
+        </links>
+      </score>
+    </drive>
+    <drive sequence="4" clock="04:44" quarter="3" team="AUB">
+      <score id="71eba433-fce2-4e04-b559-f1d5ec8d8b54" type="touchdown" clock="14:16" quarter="4" points="6" team="AUB">
+        <game-score>
+          <team id="KST" points="7"/>
+          <team id="AUB" points="16"/>
+        </game-score>
+        <summary>
+          <![CDATA[14-N.Marshall complete to 1-D.Williams. 1-D.Williams runs 9 yards for a touchdown.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/71eba433-fce2-4e04-b559-f1d5ec8d8b54.xml" type="application/xml"/>
+        </links>
+      </score>
+      <score id="1992ebbd-299b-45fa-b3a9-ef0bfd67d3b8" type="extrapoint" clock="14:10" quarter="4" points="1" team="AUB">
+        <game-score>
+          <team id="KST" points="7"/>
+          <team id="AUB" points="17"/>
+        </game-score>
+        <summary>
+          <![CDATA[38-D.Carlson extra point is good.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/1992ebbd-299b-45fa-b3a9-ef0bfd67d3b8.xml" type="application/xml"/>
+        </links>
+      </score>
+    </drive>
+    <drive sequence="5" clock="12:16" quarter="4" team="AUB">
+      <score id="9fffb648-b574-4e98-96de-487d6eaa735f" type="fieldgoal" clock="06:30" quarter="4" points="3" team="AUB">
+        <game-score>
+          <team id="KST" points="7"/>
+          <team id="AUB" points="20"/>
+        </game-score>
+        <summary>
+          <![CDATA[38-D.Carlson 25 yards Field Goal is Good.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/9fffb648-b574-4e98-96de-487d6eaa735f.xml" type="application/xml"/>
+        </links>
+      </score>
+    </drive>
+    <drive sequence="6" clock="06:28" quarter="4" team="KST">
+      <score id="b6c3c540-19e4-4498-8a5e-1b2563f509c8" type="touchdown" clock="03:53" quarter="4" points="6" team="KST">
+        <game-score>
+          <team id="KST" points="13"/>
+          <team id="AUB" points="20"/>
+        </game-score>
+        <summary>
+          <![CDATA[24-C.Jones runs 1 yard for a touchdown.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/b6c3c540-19e4-4498-8a5e-1b2563f509c8.xml" type="application/xml"/>
+        </links>
+      </score>
+      <score id="9e9b1900-81a1-4154-b6b7-cf31baf1b7bf" type="extrapoint" clock="03:49" quarter="4" points="1" team="KST">
+        <game-score>
+          <team id="KST" points="14"/>
+          <team id="AUB" points="20"/>
+        </game-score>
+        <summary>
+          <![CDATA[16-M.McCrane extra point is good.]]>
+        </summary>
+        <links>
+          <link rel="summary" href="/2014/REG/4/AUB/KST/plays/9e9b1900-81a1-4154-b6b7-cf31baf1b7bf.xml" type="application/xml"/>
+        </links>
+      </score>
+    </drive>
+  </scoring_drives>
+</game>
+`
+
 func TestDivisionConferences(t *testing.T) {
 	v := new(Division)
 	err := xml.Unmarshal([]byte(divisionConferenceData), v)
@@ -138,6 +294,16 @@ func TestSeasons(t *testing.T) {
 		return
 	}
 	game := games[0]
+	gameTime, err := game.FormattedScheduled()
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	expectedTime := time.Date(2014, 8, 23, 19, 30, 0, 0, time.UTC)
+	if !expectedTime.Equal(gameTime) {
+		t.Errorf("Expected time %v, found %v\n", expectedTime, gameTime)
+		return
+	}
 	venue := game.Venue
 	if venue == nil {
 		t.Errorf("Venue not found\n")
@@ -158,6 +324,50 @@ func TestSeasons(t *testing.T) {
 	venues := schedule.Venues()
 	if len(venues) != 3 {
 		t.Errorf("Expected %d venues, found %d\n", 3, len(venues))
+		return
+	}
+}
+
+func TestBoxscore(t *testing.T) {
+	v := new(Boxscore)
+	err := xml.Unmarshal([]byte(boxscoreData), v)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	gameTime, err := v.FormattedScheduled()
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	expectedGameTime := time.Date(2014, 9, 18, 23, 30, 0, 0, time.UTC)
+	if !expectedGameTime.Equal(gameTime) {
+		t.Errorf("Expected game time %v, found %v\n", expectedGameTime, gameTime)
+		return
+	}
+	teams := v.Teams
+	if len(teams) != 2 {
+		t.Errorf("Expected %d teams, found %d\n", 2, len(teams))
+		return
+	}
+	expectedHomeTeamScore := int64(14)
+	homeTeamScore, err := v.HomeTeamScore()
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	if homeTeamScore != expectedHomeTeamScore {
+		t.Errorf("Expected home score of %d, found %d\n", expectedHomeTeamScore, homeTeamScore)
+		return
+	}
+	expectedAwayTeamScore := int64(20)
+	awayTeamScore, err := v.AwayTeamScore()
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	if awayTeamScore != expectedAwayTeamScore {
+		t.Errorf("Expected away score of %d, found %d\n", expectedAwayTeamScore, awayTeamScore)
 		return
 	}
 }

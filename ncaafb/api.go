@@ -95,6 +95,19 @@ func (a *API) scheduleEndpoint(year string, scheduleType ScheduleType) (*url.URL
 	return u, nil
 }
 
+func (a *API) boxscoreEndpoint(year string, scheduleType ScheduleType, week, awayTeamId, homeTeamId string) (*url.URL, error) {
+	//http(s)://api.sportsdatallc.org/ncaafb-[access_level][version]/[year]/[ncaafb_season]/[ncaafb_season_week]/[away_team]/[home_team]/boxscore.[format]?api_key=[your_api_key]
+	endpoint := fmt.Sprintf("%s/%s/%s/%s/%s/%s/boxscore.xml", a.baseEndpoint(), year, scheduleType, week, awayTeamId, homeTeamId)
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	q := u.Query()
+	q.Set("api_key", a.apiKey)
+	u.RawQuery = q.Encode()
+	return u, nil
+}
+
 func (a *API) Division(divisionType DivisionType) (*Division, error) {
 	u, err := a.divisionEndpoint(divisionType)
 	if err != nil {
@@ -177,4 +190,50 @@ func (a *API) AllSchedules(years []string) ([]*Schedule, error) {
 		}
 	}
 	return schedules, nil
+}
+
+func (a *API) Boxscore(year string, scheduleType ScheduleType, week, awayTeamId, homeTeamId string) (*Boxscore, error) {
+	u, err := a.boxscoreEndpoint(year, scheduleType, week, awayTeamId, homeTeamId)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("API Status Returned Code %d.\nRequest: %+v\nResponse: %+v\n", resp.StatusCode, resp.Request, resp))
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	boxscore := new(Boxscore)
+	err = xml.Unmarshal(body, boxscore)
+	if err != nil {
+		return nil, err
+	}
+	boxscore.Year = year
+	boxscore.ScheduleType = scheduleType
+	boxscore.Week = week
+	return boxscore, nil
+}
+
+func (a *API) AllBoxscores(schedule *Schedule) ([]*Boxscore, error) {
+	boxscores := make([]*Boxscore, 0)
+	if schedule.Season != nil {
+		for _, week := range schedule.Season.Weeks {
+			for _, game := range week.Games {
+				time.Sleep(1 * time.Second)
+				fmt.Printf("Getting boxscore for %s, %s, %s, %s, %s", schedule.Year, schedule.ScheduleType, week.Week, game.AwayTeamId, game.HomeTeamId)
+				boxscore, err := a.Boxscore(schedule.Year, schedule.ScheduleType, week.Week, game.AwayTeamId, game.HomeTeamId)
+				if err != nil {
+					return nil, err
+				}
+				boxscores = append(boxscores, boxscore)
+			}
+		}
+	}
+	return boxscores, nil
 }

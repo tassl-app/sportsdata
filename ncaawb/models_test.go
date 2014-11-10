@@ -3,6 +3,7 @@ package ncaawb
 import (
 	"encoding/xml"
 	"testing"
+	"time"
 )
 
 const leagueDivisionData = `
@@ -122,7 +123,7 @@ func TestLeagueSchedule(t *testing.T) {
 		t.Errorf("Expected schedule id %s, found %s\n", expectedSeasonScheduleId, v.SeasonSchedule.Id)
 		return
 	}
-	games := v.SeasonSchedule.Games.Game
+	games := v.SeasonSchedule.Games.Games
 	if len(games) != 2 {
 		t.Errorf("Expected %d games, found %d\n", 2, len(games))
 		return
@@ -131,6 +132,16 @@ func TestLeagueSchedule(t *testing.T) {
 	expectedGameId := "04d68600-024d-4f46-84aa-257da2f59127"
 	if game.Id != expectedGameId {
 		t.Errorf("Expected game id %s, found %s\n", expectedGameId, game.Id)
+		return
+	}
+	gameTime, err := game.FormattedScheduled()
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	expectedTime := time.Date(2012, 11, 9, 14, 22, 0, 0, time.UTC)
+	if !expectedTime.Equal(gameTime) {
+		t.Errorf("Expected time %v, found %v\n", expectedTime, gameTime)
 		return
 	}
 	homeTeam := game.HomeTeam
