@@ -176,8 +176,8 @@ func (a *API) Schedule(year string, scheduleType ScheduleType) (*Schedule, error
 
 func (a *API) AllSchedules(years []string) ([]*Schedule, error) {
 	schedules := make([]*Schedule, 0)
-	for i, year := range years {
-		for j, scheduleType := range ScheduleAll {
+	for _, year := range years {
+		for _, scheduleType := range ScheduleAll {
 			schedule, err := a.Schedule(year, scheduleType)
 			if err != nil {
 				return nil, err
