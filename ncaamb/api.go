@@ -188,7 +188,7 @@ func (a *API) Boxscores(ids []string) ([]*Boxscore, error) {
 		if sleep {
 			time.Sleep(1 * time.Second)
 		}
-		fmt.Printf("Getting boxscore for %s", id)
+		fmt.Printf("Getting boxscore for %s\n", id)
 		boxscore, err := a.Boxscore(id)
 		if err != nil {
 			return nil, err
