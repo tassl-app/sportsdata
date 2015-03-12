@@ -221,7 +221,7 @@ func (a *API) ScheduleBoxscores(schedule *Schedule, games []*Game) ([]*Boxscore,
 	boxscores := make([]*Boxscore, 0)
 	for _, g := range games {
 		for _, w := range schedule.Season.Weeks {
-			fmt.Printf("Getting boxscore for %s, %s, %s, %s, %s", schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
+			fmt.Printf("Getting boxscore for %d: %s, %s, %s, %s, %s\n", g.Id, schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
 			boxscore, err := a.Boxscore(schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
 			if err != nil {
 				return nil, err
