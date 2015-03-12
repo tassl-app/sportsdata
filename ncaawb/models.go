@@ -145,6 +145,19 @@ func (s *Schedule) FilterGames(l []*Game) []*Game {
 	return filtered
 }
 
+func (s *Schedule) FilterBoxscores(l []*Boxscore) []*Boxscore {
+	filtered := make([]*Boxscore, 0)
+	for _, b := range l {
+		for _, g := range s.Games() {
+			if g.Id == b.Id {
+				filtered = append(filtered, b)
+				break
+			}
+		}
+	}
+	return filtered
+}
+
 type Boxscore struct {
 	XMLNS       string          `xml:"xmlns,attr"`
 	Id          string          `xml:"id,attr"`

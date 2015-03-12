@@ -181,15 +181,15 @@ func (a *API) Boxscore(gameId string) (*Boxscore, error) {
 	return boxscore, err
 }
 
-func (a *API) Boxscores(games []*Game) ([]*Boxscore, error) {
+func (a *API) Boxscores(ids []string) ([]*Boxscore, error) {
 	boxscores := make([]*Boxscore, 0)
 	sleep := false
-	for _, g := range games {
+	for _, id := range ids {
 		if sleep {
 			time.Sleep(1 * time.Second)
 		}
-		fmt.Printf("Getting boxscore for %s, %s, %s, %s, %s", g.Id)
-		boxscore, err := a.Boxscore(g.Id)
+		fmt.Printf("Getting boxscore for %s", id)
+		boxscore, err := a.Boxscore(id)
 		if err != nil {
 			return nil, err
 		}
