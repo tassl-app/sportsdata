@@ -114,6 +114,7 @@ func (a *API) Division(divisionType DivisionType) (*Division, error) {
 		return nil, err
 	}
 	endpoint := u.String()
+	time.Sleep(1 * time.Second)
 	resp, err := http.Get(endpoint)
 	if err != nil {
 		return nil, err
@@ -133,10 +134,7 @@ func (a *API) Division(divisionType DivisionType) (*Division, error) {
 
 func (a *API) AllDivisions() ([]*Division, error) {
 	divisions := make([]*Division, 0)
-	for i, divisionType := range DivisionAll {
-		if i > 0 {
-			time.Sleep(1 * time.Second)
-		}
+	for _, divisionType := range DivisionAll {
 		division, err := a.Division(divisionType)
 		if err != nil {
 			return nil, err
@@ -151,6 +149,7 @@ func (a *API) Schedule(year string, scheduleType ScheduleType) (*Schedule, error
 	if err != nil {
 		return nil, err
 	}
+	time.Sleep(1 * time.Second)
 	resp, err := http.Get(u.String())
 	if err != nil {
 		return nil, err
@@ -179,9 +178,6 @@ func (a *API) AllSchedules(years []string) ([]*Schedule, error) {
 	schedules := make([]*Schedule, 0)
 	for i, year := range years {
 		for j, scheduleType := range ScheduleAll {
-			if i > 0 || j > 0 {
-				time.Sleep(1 * time.Second)
-			}
 			schedule, err := a.Schedule(year, scheduleType)
 			if err != nil {
 				return nil, err
@@ -197,6 +193,7 @@ func (a *API) Boxscore(year string, scheduleType ScheduleType, week, awayTeamId,
 	if err != nil {
 		return nil, err
 	}
+	time.Sleep(1 * time.Second)
 	resp, err := http.Get(u.String())
 	if err != nil {
 		return nil, err
@@ -222,19 +219,14 @@ func (a *API) Boxscore(year string, scheduleType ScheduleType, week, awayTeamId,
 
 func (a *API) ScheduleBoxscores(schedule *Schedule, games []*Game) ([]*Boxscore, error) {
 	boxscores := make([]*Boxscore, 0)
-	sleep := false
 	for _, g := range games {
 		for _, w := range schedule.Season.Weeks {
-			if sleep {
-				time.Sleep(1 * time.Second)
-			}
 			fmt.Printf("Getting boxscore for %s, %s, %s, %s, %s", schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
 			boxscore, err := a.Boxscore(schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
 			if err != nil {
 				return nil, err
 			}
 			boxscores = append(boxscores, boxscore)
-			sleep = true
 		}
 	}
 	return boxscores, nil

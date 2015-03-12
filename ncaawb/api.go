@@ -94,6 +94,7 @@ func (a *API) League() (*League, error) {
 	if err != nil {
 		return nil, err
 	}
+	time.Sleep(1 * time.Second)
 	resp, err := http.Get(endpoint.String())
 	if err != nil {
 		return nil, err
@@ -116,6 +117,7 @@ func (a *API) Schedule(season string, scheduleType ScheduleType) (*Schedule, err
 	if err != nil {
 		return nil, err
 	}
+	time.Sleep(1 * time.Second)
 	resp, err := http.Get(endpoint.String())
 	if err != nil {
 		return nil, err
@@ -142,18 +144,13 @@ func (a *API) Schedule(season string, scheduleType ScheduleType) (*Schedule, err
 
 func (a *API) AllSchedules(seasons []string) ([]*Schedule, error) {
 	schedules := make([]*Schedule, 0)
-	sleep := false
 	for _, season := range seasons {
 		for _, scheduleType := range ScheduleAll {
-			if sleep {
-				time.Sleep(1 * time.Second)
-			}
 			schedule, err := a.Schedule(season, scheduleType)
 			if err != nil {
 				return nil, err
 			}
 			schedules = append(schedules, schedule)
-			sleep = true
 		}
 	}
 	return schedules, nil
@@ -164,6 +161,7 @@ func (a *API) Boxscore(gameId string) (*Boxscore, error) {
 	if err != nil {
 		return nil, err
 	}
+	time.Sleep(1 * time.Second)
 	resp, err := http.Get(endpoint.String())
 	if err != nil {
 		return nil, err
@@ -183,18 +181,13 @@ func (a *API) Boxscore(gameId string) (*Boxscore, error) {
 
 func (a *API) Boxscores(ids []string) ([]*Boxscore, error) {
 	boxscores := make([]*Boxscore, 0)
-	sleep := false
 	for _, id := range ids {
-		if sleep {
-			time.Sleep(1 * time.Second)
-		}
 		fmt.Printf("Getting boxscore for %s\n", id)
 		boxscore, err := a.Boxscore(id)
 		if err != nil {
 			return nil, err
 		}
 		boxscores = append(boxscores, boxscore)
-		sleep = true
 	}
 	return boxscores, nil
 }
