@@ -1,12 +1,9 @@
 package ncaafb
 
 import (
-	"errors"
 	"github.com/tassl/sportsdata"
 	"time"
 )
-
-var ErrScoreNotFound = errors.New("Score not found")
 
 type Team struct {
 	Id            string `xml:"id,attr"`
@@ -114,6 +111,10 @@ func (g *Game) FormattedScheduled() (time.Time, error) {
 	return time.Parse(sportsdata.SportsDataTimeFormat, g.Scheduled)
 }
 
+func (g *Game) ParseScheduled(t time.Time) string {
+	return t.Format(sportsdata.SportsDataTimeFormat)
+}
+
 type Week struct {
 	Week  string  `xml:"week,attr"`
 	Games []*Game `xml:"game"`
@@ -124,6 +125,16 @@ type Season struct {
 	Season     string  `xml:"season,attr"`
 	SeasonType string  `xml:"type,attr"`
 	Weeks      []*Week `xml:"week"`
+}
+
+func (s *Season) Games() []*Game {
+	games := make([]*Game, 0)
+	for _, w := range s.Weeks {
+		for _, g := range w.Games {
+			games = append(games, g)
+		}
+	}
+	return games
 }
 
 type Schedule struct {
@@ -142,6 +153,29 @@ func (s *Schedule) Venues() []*sportsdata.Venue {
 		}
 	}
 	return venues
+}
+
+func (s *Schedule) Games() []*Game {
+	games := make([]*Game, 0)
+	for _, w := range s.Season.Weeks {
+		for _, g := range w.Games {
+			games = append(games, g)
+		}
+	}
+	return games
+}
+
+func (s *Schedule) FilterGames(l []*Game) []*Game {
+	filtered := make([]*Game, 0)
+	for _, g := range l {
+		for _, sg := range s.Games() {
+			if sg.Id == g.Id {
+				filtered = append(filtered, g)
+				break
+			}
+		}
+	}
+	return filtered
 }
 
 type Boxscore struct {
@@ -169,22 +203,38 @@ func (b *Boxscore) FormattedCompleted() (time.Time, error) {
 	return time.Parse(sportsdata.SportsDataTimeFormat, b.Completed)
 }
 
-func (b *Boxscore) HomeTeamScore() (int64, error) {
+func (b *Boxscore) HomeTeam() *BoxscoreTeam {
 	for _, t := range b.Teams {
-		if t.Id == b.HomeTeamId && t.Scoring != nil {
-			return t.Scoring.Points, nil
+		if t.Id == b.HomeTeamId {
+			return t
 		}
 	}
-	return 0, ErrScoreNotFound
+	return nil
+}
+
+func (b *Boxscore) AwayTeam() *BoxscoreTeam {
+	for _, t := range b.Teams {
+		if t.Id == b.AwayTeamId {
+			return t
+		}
+	}
+	return nil
+}
+
+func (b *Boxscore) HomeTeamScore() (int64, error) {
+	homeTeam := b.HomeTeam()
+	if homeTeam == nil {
+		return 0, sportsdata.ErrScoreNotFound
+	}
+	return homeTeam.Points()
 }
 
 func (b *Boxscore) AwayTeamScore() (int64, error) {
-	for _, t := range b.Teams {
-		if t.Id == b.AwayTeamId && t.Scoring != nil {
-			return t.Scoring.Points, nil
-		}
+	awawyTeam := b.AwayTeam()
+	if awawyTeam == nil {
+		return 0, sportsdata.ErrScoreNotFound
 	}
-	return 0, ErrScoreNotFound
+	return awawyTeam.Points()
 }
 
 type BoxscoreTeam struct {
@@ -194,6 +244,13 @@ type BoxscoreTeam struct {
 	RemainingChallenges int64                `xml:"remaining_challenges,attr"`
 	RemainingTimeouts   int64                `xml:"remaining_timeouts,attr"`
 	Scoring             *BoxscoreTeamScoring `xml:"scoring"`
+}
+
+func (t *BoxscoreTeam) Points() (int64, error) {
+	if t.Scoring == nil {
+		return 0, sportsdata.ErrScoreNotFound
+	}
+	return t.Scoring.Points, nil
 }
 
 type BoxscoreTeamScoring struct {

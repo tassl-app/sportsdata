@@ -1,6 +1,12 @@
 package sportsdata
 
+import (
+	"errors"
+)
+
 const SportsDataTimeFormat = "2006-01-02T15:04:05-07:00"
+
+var ErrScoreNotFound = errors.New("Score not found")
 
 type Venue struct {
 	Id        string `xml:"id,attr"`

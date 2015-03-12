@@ -220,21 +220,21 @@ func (a *API) Boxscore(year string, scheduleType ScheduleType, week, awayTeamId,
 	return boxscore, nil
 }
 
-func (a *API) AllBoxscores(schedule *Schedule) ([]*Boxscore, error) {
+func (a *API) ScheduleBoxscores(schedule *Schedule, games []*Game) ([]*Boxscore, error) {
 	boxscores := make([]*Boxscore, 0)
-	if schedule.Season != nil {
-		for _, week := range schedule.Season.Weeks {
-			for i, game := range week.Games {
-				if i > 0 {
-					time.Sleep(1 * time.Second)
-				}
-				fmt.Printf("Getting boxscore for %s, %s, %s, %s, %s", schedule.Year, schedule.ScheduleType, week.Week, game.AwayTeamId, game.HomeTeamId)
-				boxscore, err := a.Boxscore(schedule.Year, schedule.ScheduleType, week.Week, game.AwayTeamId, game.HomeTeamId)
-				if err != nil {
-					return nil, err
-				}
-				boxscores = append(boxscores, boxscore)
+	sleep := false
+	for _, g := range games {
+		for _, w := range schedule.Season.Weeks {
+			if sleep {
+				time.Sleep(1 * time.Second)
 			}
+			fmt.Printf("Getting boxscore for %s, %s, %s, %s, %s", schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
+			boxscore, err := a.Boxscore(schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
+			if err != nil {
+				return nil, err
+			}
+			boxscores = append(boxscores, boxscore)
+			sleep = true
 		}
 	}
 	return boxscores, nil
