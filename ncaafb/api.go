@@ -17,10 +17,11 @@ type API struct {
 	log        bool
 }
 
-func NewAPI(apiKey string, production bool) *API {
+func NewAPI(apiKey string, production, log bool) *API {
 	return &API{
 		apiKey:     apiKey,
 		production: production,
+		log:        log,
 	}
 }
 
