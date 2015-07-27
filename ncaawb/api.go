@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -13,6 +14,7 @@ import (
 type API struct {
 	apiKey     string
 	production bool
+	log        bool
 }
 
 func NewAPI(apiKey string, production bool) *API {
@@ -50,7 +52,11 @@ func (a *API) baseEndpoint() string {
 	} else {
 		accessLevel = AccessLevelTrial
 	}
-	return fmt.Sprintf("https://api.sportsdatallc.org/ncaawb-%s3", string(accessLevel))
+	endpoint := fmt.Sprintf("https://api.sportsdatallc.org/ncaawb-%s3", string(accessLevel))
+	if a.log {
+		log.Printf("base endpoint: %+v\n", endpoint)
+	}
+	return endpoint
 }
 
 func (a *API) boxscoreEndpoint(gameId string) (*url.URL, error) {
@@ -62,6 +68,9 @@ func (a *API) boxscoreEndpoint(gameId string) (*url.URL, error) {
 	q := u.Query()
 	q.Set("api_key", a.apiKey)
 	u.RawQuery = q.Encode()
+	if a.log {
+		log.Printf("boxscore endpoint: %+v\n", u.String())
+	}
 	return u, nil
 }
 
@@ -74,6 +83,9 @@ func (a *API) divisionEndpoint() (*url.URL, error) {
 	q := u.Query()
 	q.Set("api_key", a.apiKey)
 	u.RawQuery = q.Encode()
+	if a.log {
+		log.Printf("division endpoint: %+v\n", u.String())
+	}
 	return u, nil
 }
 
@@ -86,6 +98,9 @@ func (a *API) scheduleEndpoint(season string, scheduleType ScheduleType) (*url.U
 	q := u.Query()
 	q.Set("api_key", a.apiKey)
 	u.RawQuery = q.Encode()
+	if a.log {
+		log.Printf("schedule endpoint: %+v\n", u.String())
+	}
 	return u, nil
 }
 

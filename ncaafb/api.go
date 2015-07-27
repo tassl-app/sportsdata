@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -13,6 +14,7 @@ import (
 type API struct {
 	apiKey     string
 	production bool
+	log        bool
 }
 
 func NewAPI(apiKey string, production bool) *API {
@@ -68,7 +70,11 @@ func (a *API) baseEndpoint() string {
 	} else {
 		accessLevel = AccessLevelTrial
 	}
-	return fmt.Sprintf("https://api.sportsdatallc.org/ncaafb-%s1", string(accessLevel))
+	endpoint := fmt.Sprintf("https://api.sportsdatallc.org/ncaafb-%s1", string(accessLevel))
+	if a.log {
+		log.Printf("base endpoint: %+v\n", endpoint)
+	}
+	return endpoint
 }
 
 func (a *API) divisionEndpoint(divisionType DivisionType) (*url.URL, error) {
@@ -80,6 +86,9 @@ func (a *API) divisionEndpoint(divisionType DivisionType) (*url.URL, error) {
 	q := u.Query()
 	q.Set("api_key", a.apiKey)
 	u.RawQuery = q.Encode()
+	if a.log {
+		log.Printf("division endpoint: %+v\n", u.String())
+	}
 	return u, nil
 }
 
@@ -92,6 +101,9 @@ func (a *API) scheduleEndpoint(year string, scheduleType ScheduleType) (*url.URL
 	q := u.Query()
 	q.Set("api_key", a.apiKey)
 	u.RawQuery = q.Encode()
+	if a.log {
+		log.Printf("schedule endpoint: %v\n", u.String())
+	}
 	return u, nil
 }
 
@@ -105,6 +117,9 @@ func (a *API) boxscoreEndpoint(year string, scheduleType ScheduleType, week, awa
 	q := u.Query()
 	q.Set("api_key", a.apiKey)
 	u.RawQuery = q.Encode()
+	if a.log {
+		log.Printf("boxscore endpoint: %v\n", u.String())
+	}
 	return u, nil
 }
 
@@ -223,7 +238,9 @@ func (a *API) ScheduleBoxscores(schedule *Schedule, ids []string) ([]*Boxscore, 
 		for _, g := range w.Games {
 			for _, id := range ids {
 				if g.Id == id {
-					fmt.Printf("Getting boxscore for %s: %s, %s, %s, %s, %s\n", g.Id, schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
+					if a.log {
+						log.Printf("Getting boxscore for %s: %s, %s, %s, %s, %s\n", g.Id, schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
+					}
 					boxscore, err := a.Boxscore(schedule.Year, schedule.ScheduleType, w.Week, g.AwayTeamId, g.HomeTeamId)
 					if err != nil {
 						return nil, err
