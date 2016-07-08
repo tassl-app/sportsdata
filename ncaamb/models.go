@@ -1,7 +1,7 @@
 package ncaamb
 
 import (
-	"github.com/tassl/sportsdata"
+	"github.com/tassl-app/sportsdata"
 	"time"
 )
 
